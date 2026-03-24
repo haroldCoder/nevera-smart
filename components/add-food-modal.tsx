@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { FoodItem, FoodCategory, FoodLocation, CATEGORY_LABELS, CATEGORY_ICONS, LOCATION_LABELS } from "@/lib/store";
 import { useColors } from "@/hooks/use-colors";
+import { BarcodeScanner } from "./barcode-scanner";
 import * as Haptics from "expo-haptics";
 
 interface AddFoodModalProps {
@@ -23,12 +24,6 @@ interface AddFoodModalProps {
 const CATEGORIES: FoodCategory[] = ["lacteos", "frutas", "verduras", "carnes", "granos", "bebidas", "otros"];
 const LOCATIONS: FoodLocation[] = ["nevera", "congelador", "despensa"];
 
-function getDaysFromNow(days: number): string {
-  const d = new Date();
-  d.setDate(d.getDate() + days);
-  return d.toISOString().split("T")[0];
-}
-
 export function AddFoodModal({ visible, onClose, onSave, editFood }: AddFoodModalProps) {
   const colors = useColors();
   const [name, setName] = useState("");
@@ -37,6 +32,7 @@ export function AddFoodModal({ visible, onClose, onSave, editFood }: AddFoodModa
   const [quantity, setQuantity] = useState("1");
   const [unit, setUnit] = useState("unid");
   const [expiryDays, setExpiryDays] = useState("7");
+  const [scannerVisible, setScannerVisible] = useState(false);
 
   useEffect(() => {
     if (editFood) {
@@ -84,149 +80,171 @@ export function AddFoodModal({ visible, onClose, onSave, editFood }: AddFoodModa
   ];
 
   return (
-    <Modal visible={visible} animationType="slide" transparent presentationStyle="overFullScreen">
-      <View style={styles.overlay}>
-        <View style={[styles.sheet, { backgroundColor: colors.background }]}>
-          {/* Handle */}
-          <View style={[styles.handle, { backgroundColor: colors.border }]} />
+    <>
+      <Modal visible={visible} animationType="slide" transparent presentationStyle="overFullScreen">
+        <View style={styles.overlay}>
+          <View style={[styles.sheet, { backgroundColor: colors.background }]}>
+            {/* Handle */}
+            <View style={[styles.handle, { backgroundColor: colors.border }]} />
 
-          <Text style={[styles.title, { color: colors.foreground }]}>
-            {editFood ? "Editar alimento" : "Agregar alimento"}
-          </Text>
+            <Text style={[styles.title, { color: colors.foreground }]}>
+              {editFood ? "Editar alimento" : "Agregar alimento"}
+            </Text>
 
-          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-            {/* Name */}
-            <Text style={[styles.label, { color: colors.muted }]}>Nombre</Text>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
-              value={name}
-              onChangeText={setName}
-              placeholder="Ej: Leche entera"
-              placeholderTextColor={colors.muted}
-              returnKeyType="done"
-            />
-
-            {/* Category */}
-            <Text style={[styles.label, { color: colors.muted }]}>Categoría</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-              {CATEGORIES.map((cat) => (
-                <Pressable
-                  key={cat}
-                  onPress={() => setCategory(cat)}
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor: category === cat ? colors.primary : colors.surface,
-                      borderColor: category === cat ? colors.primary : colors.border,
-                    },
-                  ]}
-                >
-                  <Text style={styles.chipIcon}>{CATEGORY_ICONS[cat]}</Text>
-                  <Text style={[styles.chipText, { color: category === cat ? "#fff" : colors.foreground }]}>
-                    {CATEGORY_LABELS[cat]}
-                  </Text>
-                </Pressable>
-              ))}
-            </ScrollView>
-
-            {/* Location */}
-            <Text style={[styles.label, { color: colors.muted }]}>Ubicación</Text>
-            <View style={styles.row}>
-              {LOCATIONS.map((loc) => (
-                <Pressable
-                  key={loc}
-                  onPress={() => setLocation(loc)}
-                  style={[
-                    styles.locationBtn,
-                    {
-                      backgroundColor: location === loc ? colors.primary : colors.surface,
-                      borderColor: location === loc ? colors.primary : colors.border,
-                      flex: 1,
-                    },
-                  ]}
-                >
-                  <Text style={[styles.locationText, { color: location === loc ? "#fff" : colors.foreground }]}>
-                    {loc === "nevera" ? "🧊" : loc === "congelador" ? "❄️" : "🗄️"} {LOCATION_LABELS[loc]}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-
-            {/* Quantity */}
-            <View style={styles.row}>
-              <View style={{ flex: 1, marginRight: 8 }}>
-                <Text style={[styles.label, { color: colors.muted }]}>Cantidad</Text>
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
+              {/* Name with Scanner */}
+              <Text style={[styles.label, { color: colors.muted }]}>Nombre</Text>
+              <View style={styles.nameRow}>
                 <TextInput
-                  style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
-                  value={quantity}
-                  onChangeText={setQuantity}
-                  keyboardType="decimal-pad"
-                  returnKeyType="done"
-                />
-              </View>
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.label, { color: colors.muted }]}>Unidad</Text>
-                <TextInput
-                  style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
-                  value={unit}
-                  onChangeText={setUnit}
-                  placeholder="unid, kg, L..."
+                  style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground, flex: 1 }]}
+                  value={name}
+                  onChangeText={setName}
+                  placeholder="Ej: Leche entera"
                   placeholderTextColor={colors.muted}
                   returnKeyType="done"
                 />
-              </View>
-            </View>
-
-            {/* Expiry */}
-            <Text style={[styles.label, { color: colors.muted }]}>Vence en (días)</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
-              {QUICK_EXPIRY.map((q) => (
                 <Pressable
-                  key={q.days}
-                  onPress={() => setExpiryDays(String(q.days))}
-                  style={[
-                    styles.chip,
-                    {
-                      backgroundColor: expiryDays === String(q.days) ? "#F39C12" : colors.surface,
-                      borderColor: expiryDays === String(q.days) ? "#F39C12" : colors.border,
-                    },
-                  ]}
+                  onPress={() => setScannerVisible(true)}
+                  style={[styles.scannerBtn, { backgroundColor: colors.primary }]}
                 >
-                  <Text style={[styles.chipText, { color: expiryDays === String(q.days) ? "#fff" : colors.foreground }]}>
-                    {q.label}
-                  </Text>
+                  <Text style={styles.scannerIcon}>📱</Text>
                 </Pressable>
-              ))}
-            </ScrollView>
-            <TextInput
-              style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
-              value={expiryDays}
-              onChangeText={setExpiryDays}
-              keyboardType="number-pad"
-              placeholder="Número de días"
-              placeholderTextColor={colors.muted}
-              returnKeyType="done"
-            />
-          </ScrollView>
+              </View>
 
-          {/* Actions */}
-          <View style={styles.actions}>
-            <Pressable
-              onPress={onClose}
-              style={[styles.cancelBtn, { borderColor: colors.border }]}
-            >
-              <Text style={[styles.cancelText, { color: colors.muted }]}>Cancelar</Text>
-            </Pressable>
-            <Pressable
-              onPress={handleSave}
-              style={[styles.saveBtn, { backgroundColor: colors.primary, opacity: name.trim() ? 1 : 0.5 }]}
-            >
-              <Text style={styles.saveText}>{editFood ? "Guardar" : "Agregar"}</Text>
-            </Pressable>
+              {/* Category */}
+              <Text style={[styles.label, { color: colors.muted }]}>Categoría</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+                {CATEGORIES.map((cat) => (
+                  <Pressable
+                    key={cat}
+                    onPress={() => setCategory(cat)}
+                    style={[
+                      styles.chip,
+                      {
+                        backgroundColor: category === cat ? colors.primary : colors.surface,
+                        borderColor: category === cat ? colors.primary : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={styles.chipIcon}>{CATEGORY_ICONS[cat]}</Text>
+                    <Text style={[styles.chipText, { color: category === cat ? "#fff" : colors.foreground }]}>
+                      {CATEGORY_LABELS[cat]}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+
+              {/* Location */}
+              <Text style={[styles.label, { color: colors.muted }]}>Ubicación</Text>
+              <View style={styles.row}>
+                {LOCATIONS.map((loc) => (
+                  <Pressable
+                    key={loc}
+                    onPress={() => setLocation(loc)}
+                    style={[
+                      styles.locationBtn,
+                      {
+                        backgroundColor: location === loc ? colors.primary : colors.surface,
+                        borderColor: location === loc ? colors.primary : colors.border,
+                        flex: 1,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.locationText, { color: location === loc ? "#fff" : colors.foreground }]}>
+                      {loc === "nevera" ? "🧊" : loc === "congelador" ? "❄️" : "🗄️"} {LOCATION_LABELS[loc]}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+
+              {/* Quantity */}
+              <View style={styles.row}>
+                <View style={{ flex: 1, marginRight: 8 }}>
+                  <Text style={[styles.label, { color: colors.muted }]}>Cantidad</Text>
+                  <TextInput
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
+                    value={quantity}
+                    onChangeText={setQuantity}
+                    keyboardType="decimal-pad"
+                    returnKeyType="done"
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={[styles.label, { color: colors.muted }]}>Unidad</Text>
+                  <TextInput
+                    style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
+                    value={unit}
+                    onChangeText={setUnit}
+                    placeholder="unid, kg, L..."
+                    placeholderTextColor={colors.muted}
+                    returnKeyType="done"
+                  />
+                </View>
+              </View>
+
+              {/* Expiry */}
+              <Text style={[styles.label, { color: colors.muted }]}>Vence en (días)</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipRow}>
+                {QUICK_EXPIRY.map((q) => (
+                  <Pressable
+                    key={q.days}
+                    onPress={() => setExpiryDays(String(q.days))}
+                    style={[
+                      styles.chip,
+                      {
+                        backgroundColor: expiryDays === String(q.days) ? "#F39C12" : colors.surface,
+                        borderColor: expiryDays === String(q.days) ? "#F39C12" : colors.border,
+                      },
+                    ]}
+                  >
+                    <Text style={[styles.chipText, { color: expiryDays === String(q.days) ? "#fff" : colors.foreground }]}>
+                      {q.label}
+                    </Text>
+                  </Pressable>
+                ))}
+              </ScrollView>
+              <TextInput
+                style={[styles.input, { backgroundColor: colors.surface, borderColor: colors.border, color: colors.foreground }]}
+                value={expiryDays}
+                onChangeText={setExpiryDays}
+                keyboardType="number-pad"
+                placeholder="Número de días"
+                placeholderTextColor={colors.muted}
+                returnKeyType="done"
+              />
+            </ScrollView>
+
+            {/* Actions */}
+            <View style={styles.actions}>
+              <Pressable
+                onPress={onClose}
+                style={[styles.cancelBtn, { borderColor: colors.border }]}
+              >
+                <Text style={[styles.cancelText, { color: colors.muted }]}>Cancelar</Text>
+              </Pressable>
+              <Pressable
+                onPress={handleSave}
+                style={[styles.saveBtn, { backgroundColor: colors.primary, opacity: name.trim() ? 1 : 0.5 }]}
+              >
+                <Text style={styles.saveText}>{editFood ? "Guardar" : "Agregar"}</Text>
+              </Pressable>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+
+      <BarcodeScanner
+        visible={scannerVisible}
+        onClose={() => setScannerVisible(false)}
+        onProductFound={(product) => {
+          setName(product.name);
+          setCategory(product.category as FoodCategory);
+          if (product.brand) {
+            setUnit(product.brand);
+          }
+        }}
+      />
+    </>
   );
 }
 
@@ -276,6 +294,21 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 15,
     lineHeight: 20,
+  },
+  nameRow: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  scannerBtn: {
+    width: 48,
+    height: 48,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scannerIcon: {
+    fontSize: 20,
   },
   chipRow: {
     flexDirection: "row",

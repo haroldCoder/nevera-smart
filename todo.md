@@ -41,3 +41,13 @@
 - [x] Cálculo de días hasta vencimiento
 - [x] Alertas de vencimiento próximo
 - [x] Lógica de sugerencias de lista de compras
+
+
+## Escáner de Código de Barras (Nueva funcionalidad)
+- [x] Crear componente de escáner con expo-camera
+- [x] Integrar base de datos de productos (Open Food Facts API)
+- [x] Agregar botón de escáner al modal de agregar alimento
+- [x] Parsear código de barras y buscar producto
+- [x] Autocompletar nombre y categoría desde API
+- [x] Manejo de errores y productos no encontrados
+- [x] Tests para el escáner
