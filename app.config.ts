@@ -32,7 +32,7 @@ const env = {
   appSlug: "nevera-smart",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
-  logoUrl: "",
+  logoUrl: "https://d2xsxph8kpxj0f.cloudfront.net/310519663473062906/943VZkudQz3C2RMXRkB4tj/nevera-smart-logo-mr3RXk6muGp5kpKmWZvnQ5.png",
   scheme: schemeFromBundleId,
   iosBundleId: bundleId,
   androidPackage: bundleId,
