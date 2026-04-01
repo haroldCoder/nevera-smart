@@ -1,13 +1,14 @@
-import * as Api from "@/lib/_core/api";
 import * as Auth from "@/lib/_core/auth";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform } from "react-native";
+import { useRepositories } from "@/application/hooks/use-repositories";
 
 type UseAuthOptions = {
   autoFetch?: boolean;
 };
 
 export function useAuth(options?: UseAuthOptions) {
+  const { authRepository } = useRepositories();
   const { autoFetch = true } = options ?? {};
   const [user, setUser] = useState<Auth.User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -22,16 +23,12 @@ export function useAuth(options?: UseAuthOptions) {
       // Web platform: use cookie-based auth, fetch user from API
       if (Platform.OS === "web") {
         console.log("[useAuth] Web platform: fetching user from API...");
-        const apiUser = await Api.getMe();
+        const apiUser = await authRepository.getMe();
         console.log("[useAuth] API user response:", apiUser);
 
         if (apiUser) {
           const userInfo: Auth.User = {
-            id: apiUser.id,
-            openId: apiUser.openId,
-            name: apiUser.name,
-            email: apiUser.email,
-            loginMethod: apiUser.loginMethod,
+            ...apiUser,
             lastSignedIn: new Date(apiUser.lastSignedIn),
           };
           setUser(userInfo);
@@ -78,11 +75,11 @@ export function useAuth(options?: UseAuthOptions) {
       setLoading(false);
       console.log("[useAuth] fetchUser completed, loading:", false);
     }
-  }, []);
+  }, [authRepository]);
 
   const logout = useCallback(async () => {
     try {
-      await Api.logout();
+      await authRepository.logout();
     } catch (err) {
       console.error("[Auth] Logout API call failed:", err);
       // Continue with logout even if API call fails
@@ -92,7 +89,7 @@ export function useAuth(options?: UseAuthOptions) {
       setUser(null);
       setError(null);
     }
-  }, []);
+  }, [authRepository]);
 
   const isAuthenticated = useMemo(() => Boolean(user), [user]);
 
