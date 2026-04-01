@@ -14,7 +14,10 @@ import { ScreenContainer } from "@/components/screen-container";
 import { FoodCard } from "@/components/food-card";
 import { AddFoodModal } from "@/components/add-food-modal";
 import { useFoods } from "@/application/hooks/use-foods";
-import { FoodItem, FoodCategory, CATEGORY_LABELS, CATEGORY_ICONS, getDaysUntilExpiry, getExpiryStatus } from "@/lib/store";
+import { FoodItem } from "@/domain/foods/entities";
+import { FoodCategory } from "@/domain/foods/types";
+import { CATEGORY_LABELS, CATEGORY_ICONS } from "@/domain/foods/constants";
+import { getDaysUntilExpiry, getExpiryStatus } from "@shared/helpers";
 import { useColors } from "@/application/hooks/use-colors";
 import * as Haptics from "expo-haptics";
 

@@ -7,7 +7,9 @@ import {
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
 import { useFoods } from "@/application/hooks/use-foods";
-import { CATEGORY_LABELS, CATEGORY_ICONS, FoodCategory, getDaysUntilExpiry, getExpiryStatus } from "@/lib/store";
+import { CATEGORY_LABELS, CATEGORY_ICONS } from "@/domain/foods/constants";
+import { FoodCategory } from "@/domain/foods/types";
+import { getDaysUntilExpiry, getExpiryStatus } from "@shared/helpers";
 import { useColors } from "@/application/hooks/use-colors";
 
 const CATEGORY_COLORS: Record<FoodCategory, string> = {

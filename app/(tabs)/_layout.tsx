@@ -39,14 +39,14 @@ function TabLayout() {
         name="index"
         options={{
           title: "Mi Nevera",
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="refrigerator.fill" color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={26} name="refrigerator.fill" color={color} />,
         }}
       />
       <Tabs.Screen
         name="lista"
         options={{
           title: "Lista",
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="cart.fill" color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={26} name="cart.fill" color={color} />,
           tabBarBadge: pendingCount > 0 ? pendingCount : undefined,
           tabBarBadgeStyle: { backgroundColor: "#F39C12", fontSize: 10 },
         }}
@@ -55,14 +55,14 @@ function TabLayout() {
         name="recetas"
         options={{
           title: "Recetas",
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="fork.knife" color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={26} name="fork.knife" color={color} />,
         }}
       />
       <Tabs.Screen
         name="stats"
         options={{
           title: "Stats",
-          tabBarIcon: ({ color }) => <IconSymbol size={26} name="chart.bar.fill" color={color} />,
+          tabBarIcon: ({ color }: { color: string }) => <IconSymbol size={26} name="chart.bar.fill" color={color} />,
         }}
       />
     </Tabs>

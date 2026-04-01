@@ -9,10 +9,12 @@ import {
   StyleSheet,
   Platform,
 } from "react-native";
-import { FoodItem, FoodCategory, FoodLocation, CATEGORY_LABELS, CATEGORY_ICONS, LOCATION_LABELS } from "@/lib/store";
+import { FoodItem } from "@/domain/foods/entities";
 import { useColors } from "@/application/hooks/use-colors";
 import { BarcodeScanner } from "../presentation/barcode/screens/barcode-scanner";
 import * as Haptics from "expo-haptics";
+import { CATEGORY_LABELS, CATEGORY_ICONS, LOCATION_LABELS } from "@/domain/foods/constants";
+import { FoodCategory, FoodLocation } from "@/domain/foods/types";
 
 interface AddFoodModalProps {
   visible: boolean;

@@ -12,7 +12,8 @@ import {
 import { ScreenContainer } from "@/components/screen-container";
 import { useShopping } from "@/application/hooks/use-shopping";
 import { useFoods } from "@/application/hooks/use-foods";
-import { getDaysUntilExpiry, getExpiryStatus, CATEGORY_ICONS } from "@/lib/store";
+import { getDaysUntilExpiry, getExpiryStatus } from "@shared/helpers";
+import { CATEGORY_ICONS } from "@/domain/foods/constants";
 import { useColors } from "@/application/hooks/use-colors";
 import * as Haptics from "expo-haptics";
 

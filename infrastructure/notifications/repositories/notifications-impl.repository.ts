@@ -3,7 +3,7 @@ import { NotificationsRepository } from "@/domain/notifications";
 import { Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 
-export class NotificationsImplRepository implements NotificationsRepository {
+export class NotificationsRepositoryImpl implements NotificationsRepository {
     /**
      * Request permissions for push notifications (local notifications on Android/iOS).
      */

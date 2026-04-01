@@ -1,7 +1,9 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import { FoodItem, getDaysUntilExpiry, getExpiryStatus, CATEGORY_ICONS, LOCATION_LABELS } from "@/lib/store";
+import { FoodItem } from "@/domain/foods/entities";
 import { useColors } from "@/application/hooks/use-colors";
+import { getDaysUntilExpiry, getExpiryStatus } from "@shared/helpers";
+import { CATEGORY_ICONS, LOCATION_LABELS } from "@/domain/foods/constants";
 
 interface FoodCardProps {
   food: FoodItem;

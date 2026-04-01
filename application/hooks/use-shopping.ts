@@ -1,27 +1,21 @@
 import { useState, useEffect, useCallback } from "react";
-import {
-  ShoppingItem,
-  getShoppingItems,
-  saveShoppingItems,
-  addShoppingItem,
-  toggleShoppingItem,
-  deleteShoppingItem,
-  clearCompletedShoppingItems,
-  generateId,
-} from "@/lib/store";
+import { ShoppingItem } from "@/domain/shopping/entities";
+import { generateId } from "@/shared/helpers";
+import { useRepositories } from "@/application/hooks/use-repositories";
 
 export function useShopping() {
+  const { shoppingRepository: repository } = useRepositories();
   const [items, setItems] = useState<ShoppingItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     try {
-      const data = await getShoppingItems();
+      const data = await repository.getShoppingItems();
       setItems(data);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [repository]);
 
   useEffect(() => {
     load();
@@ -35,26 +29,26 @@ export function useShopping() {
       suggested,
       addedAt: new Date().toISOString(),
     };
-    await addShoppingItem(item);
+    await repository.addShoppingItem(item);
     setItems((prev) => [...prev, item]);
-  }, []);
+  }, [repository]);
 
   const toggle = useCallback(async (id: string) => {
-    await toggleShoppingItem(id);
+    await repository.toggleShoppingItem(id);
     setItems((prev) =>
       prev.map((i) => (i.id === id ? { ...i, completed: !i.completed } : i))
     );
-  }, []);
+  }, [repository]);
 
   const remove = useCallback(async (id: string) => {
-    await deleteShoppingItem(id);
+    await repository.deleteShoppingItem(id);
     setItems((prev) => prev.filter((i) => i.id !== id));
-  }, []);
+  }, [repository]);
 
   const clearCompleted = useCallback(async () => {
-    await clearCompletedShoppingItems();
+    await repository.clearCompletedShoppingItems();
     setItems((prev) => prev.filter((i) => !i.completed));
-  }, []);
+  }, [repository]);
 
   const pendingCount = items.filter((i) => !i.completed).length;
 
