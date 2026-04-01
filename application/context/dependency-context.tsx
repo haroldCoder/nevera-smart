@@ -12,6 +12,7 @@ export const DependencyProvider: React.FC<{ children: React.ReactNode }> = ({ ch
         shoppingRepository: DiFactory.createShoppingRepository(),
         notificationsRepository: DiFactory.createNotificationRepository(),
         authRepository: DiFactory.createAuthRepository(),
+        authStorageRepository: DiFactory.createAuthStorageRepository(),
     }), []);
 
     useEffect(() => {

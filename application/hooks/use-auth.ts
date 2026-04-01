@@ -1,16 +1,16 @@
-import * as Auth from "@/lib/_core/auth";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform } from "react-native";
 import { useRepositories } from "@/application/hooks/use-repositories";
+import { User } from "@/domain/auth/entities";
 
 type UseAuthOptions = {
   autoFetch?: boolean;
 };
 
 export function useAuth(options?: UseAuthOptions) {
-  const { authRepository } = useRepositories();
+  const { authRepository, authStorageRepository } = useRepositories();
   const { autoFetch = true } = options ?? {};
-  const [user, setUser] = useState<Auth.User | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -27,25 +27,25 @@ export function useAuth(options?: UseAuthOptions) {
         console.log("[useAuth] API user response:", apiUser);
 
         if (apiUser) {
-          const userInfo: Auth.User = {
+          const userInfo: User = {
             ...apiUser,
             lastSignedIn: new Date(apiUser.lastSignedIn),
           };
           setUser(userInfo);
           // Cache user info in localStorage for faster subsequent loads
-          await Auth.setUserInfo(userInfo);
+          await authStorageRepository.setUserInfo(userInfo);
           console.log("[useAuth] Web user set from API:", userInfo);
         } else {
           console.log("[useAuth] Web: No authenticated user from API");
           setUser(null);
-          await Auth.clearUserInfo();
+          await authStorageRepository.clearUserInfo();
         }
         return;
       }
 
       // Native platform: use token-based auth
       console.log("[useAuth] Native platform: checking for session token...");
-      const sessionToken = await Auth.getSessionToken();
+      const sessionToken = await authStorageRepository.getSessionToken();
       console.log(
         "[useAuth] Session token:",
         sessionToken ? `present (${sessionToken.substring(0, 20)}...)` : "missing",
@@ -57,7 +57,7 @@ export function useAuth(options?: UseAuthOptions) {
       }
 
       // Use cached user info for native (token validates the session)
-      const cachedUser = await Auth.getUserInfo();
+      const cachedUser = await authStorageRepository.getUserInfo();
       console.log("[useAuth] Cached user:", cachedUser);
       if (cachedUser) {
         console.log("[useAuth] Using cached user info");
@@ -75,7 +75,7 @@ export function useAuth(options?: UseAuthOptions) {
       setLoading(false);
       console.log("[useAuth] fetchUser completed, loading:", false);
     }
-  }, [authRepository]);
+  }, [authRepository, authStorageRepository]);
 
   const logout = useCallback(async () => {
     try {
@@ -84,12 +84,12 @@ export function useAuth(options?: UseAuthOptions) {
       console.error("[Auth] Logout API call failed:", err);
       // Continue with logout even if API call fails
     } finally {
-      await Auth.removeSessionToken();
-      await Auth.clearUserInfo();
+      await authStorageRepository.removeSessionToken();
+      await authStorageRepository.clearUserInfo();
       setUser(null);
       setError(null);
     }
-  }, [authRepository]);
+  }, [authRepository, authStorageRepository]);
 
   const isAuthenticated = useMemo(() => Boolean(user), [user]);
 
@@ -102,7 +102,7 @@ export function useAuth(options?: UseAuthOptions) {
         fetchUser();
       } else {
         // Native: check for cached user info first for faster initial load
-        Auth.getUserInfo().then((cachedUser) => {
+        authStorageRepository.getUserInfo().then((cachedUser) => {
           console.log("[useAuth] Native cached user check:", cachedUser);
           if (cachedUser) {
             console.log("[useAuth] Native: setting cached user immediately");
@@ -118,7 +118,7 @@ export function useAuth(options?: UseAuthOptions) {
       console.log("[useAuth] autoFetch disabled, setting loading to false");
       setLoading(false);
     }
-  }, [autoFetch, fetchUser]);
+  }, [autoFetch, fetchUser, authStorageRepository]);
 
   useEffect(() => {
     console.log("[useAuth] State updated:", {

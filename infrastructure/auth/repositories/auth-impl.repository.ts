@@ -1,9 +1,12 @@
-import { AuthRepository } from "@/domain/auth/repositories";
+import { AuthRepository, AuthStorageRepository } from "@/domain/auth/repositories";
 import { User } from "@/domain/auth/entities";
 import { ApiBaseRepository } from "@/infrastructure/http";
 import { getApiBaseUrl } from "@/shared/constants/oauth";
 
 export class AuthImplRepository extends ApiBaseRepository implements AuthRepository {
+    constructor(authStorageRepository: AuthStorageRepository) {
+        super(authStorageRepository);
+    }
     async exchangeOAuthCode(code: string, state: string): Promise<{ sessionToken: string; user: User }> {
         const params = new URLSearchParams({ code, state });
         const endpoint = `/api/oauth/mobile?${params.toString()}`;
@@ -23,8 +26,12 @@ export class AuthImplRepository extends ApiBaseRepository implements AuthReposit
 
     async getMe(): Promise<User | null> {
         try {
-            const result = await this.apiCall<{ user: User }>("/api/auth/me");
-            return result.user || null;
+            const result = await this.apiCall<{ user: any }>("/api/auth/me");
+            if (!result.user) return null;
+            return {
+                ...result.user,
+                lastSignedIn: new Date(result.user.lastSignedIn),
+            };
         } catch (error) {
             console.error("[AuthImplRepository] getMe failed:", error);
             return null;

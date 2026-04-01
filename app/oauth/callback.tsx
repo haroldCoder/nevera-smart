@@ -1,14 +1,14 @@
 import { ThemedView } from "@/components/themed-view";
-import * as Auth from "@/lib/_core/auth";
 import * as Linking from "expo-linking";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Text } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useRepositories } from "@/application/hooks/use-repositories";
+import { User } from "@/domain/auth/entities";
 
 export default function OAuthCallback() {
-  const { authRepository } = useRepositories();
+  const { authRepository, authStorageRepository } = useRepositories();
   const router = useRouter();
   const params = useLocalSearchParams<{
     code?: string;
@@ -27,7 +27,7 @@ export default function OAuthCallback() {
         // Check for sessionToken in params first (web OAuth callback from server redirect)
         if (params.sessionToken) {
           console.log("[OAuth] Session token found in params (web callback)");
-          await Auth.setSessionToken(params.sessionToken);
+          await authStorageRepository.setSessionToken(params.sessionToken);
 
           if (params.user) {
             try {
@@ -36,11 +36,11 @@ export default function OAuthCallback() {
                   ? atob(params.user)
                   : Buffer.from(params.user, "base64").toString("utf-8");
               const userData = JSON.parse(userJson);
-              const userInfo: Auth.User = {
+              const userInfo: User = {
                 ...userData,
                 lastSignedIn: new Date(userData.lastSignedIn || Date.now()),
               };
-              await Auth.setUserInfo(userInfo);
+              await authStorageRepository.setUserInfo(userInfo);
             } catch (err) {
               console.error("[OAuth] Failed to parse user data:", err);
             }
@@ -68,7 +68,7 @@ export default function OAuthCallback() {
         }
 
         if (sessionToken) {
-          await Auth.setSessionToken(sessionToken);
+          await authStorageRepository.setSessionToken(sessionToken);
           setStatus("success");
           setTimeout(() => {
             router.replace("/(tabs)");
@@ -84,13 +84,13 @@ export default function OAuthCallback() {
 
         const result = await authRepository.exchangeOAuthCode(code, state);
         if (result.sessionToken) {
-          await Auth.setSessionToken(result.sessionToken);
+          await authStorageRepository.setSessionToken(result.sessionToken);
           if (result.user) {
-            const userInfo: Auth.User = {
+            const userInfo: User = {
               ...result.user,
               lastSignedIn: new Date(result.user.lastSignedIn || Date.now()),
             };
-            await Auth.setUserInfo(userInfo);
+            await authStorageRepository.setUserInfo(userInfo);
           }
           setStatus("success");
           setTimeout(() => {
@@ -110,7 +110,7 @@ export default function OAuthCallback() {
     };
 
     handleCallback();
-  }, [params.code, params.state, params.error, params.sessionToken, params.user, router, authRepository]);
+  }, [params.code, params.state, params.error, params.sessionToken, params.user, router, authRepository, authStorageRepository]);
 
   return (
     <SafeAreaView className="flex-1" edges={["top", "bottom", "left", "right"]}>

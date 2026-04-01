@@ -1,8 +1,10 @@
 import { Platform } from "react-native";
 import { getApiBaseUrl } from "@/shared/constants/oauth";
-import * as Auth from "@/lib/_core/auth";
+import { AuthStorageRepository } from "@/domain/auth/repositories";
 
 export class ApiBaseRepository {
+    constructor(protected readonly authStorageRepository: AuthStorageRepository) { }
+
     protected async apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
         const headers: Record<string, string> = {
             "Content-Type": "application/json",
@@ -10,7 +12,7 @@ export class ApiBaseRepository {
         };
 
         if (Platform.OS !== "web") {
-            const sessionToken = await Auth.getSessionToken();
+            const sessionToken = await this.authStorageRepository.getSessionToken();
             if (sessionToken) {
                 headers["Authorization"] = `Bearer ${sessionToken}`;
             }
