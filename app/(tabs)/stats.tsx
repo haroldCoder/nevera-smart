@@ -6,9 +6,9 @@ import {
   StyleSheet,
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { useFoods } from "@/hooks/use-foods";
+import { useFoods } from "@/application/hooks/use-foods";
 import { CATEGORY_LABELS, CATEGORY_ICONS, FoodCategory, getDaysUntilExpiry, getExpiryStatus } from "@/lib/store";
-import { useColors } from "@/hooks/use-colors";
+import { useColors } from "@/application/hooks/use-colors";
 
 const CATEGORY_COLORS: Record<FoodCategory, string> = {
   lacteos: "#3498DB",
@@ -79,8 +79,8 @@ export default function StatsScreen() {
             <Text style={[styles.scoreTitle, { color: colors.foreground }]}>Salud de tu nevera</Text>
             <Text style={[styles.scoreSubtitle, { color: colors.muted }]}>
               {healthScore >= 70 ? "¡Excelente! Tus alimentos están frescos." :
-               healthScore >= 40 ? "Atención: algunos alimentos por vencer." :
-               "Alerta: revisa tus alimentos urgente."}
+                healthScore >= 40 ? "Atención: algunos alimentos por vencer." :
+                  "Alerta: revisa tus alimentos urgente."}
             </Text>
           </View>
           <View style={styles.scoreRight}>

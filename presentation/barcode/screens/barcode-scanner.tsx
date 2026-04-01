@@ -7,12 +7,16 @@ import {
   ActivityIndicator,
   Modal,
   Alert,
-  Platform,
+  Platform
 } from "react-native";
-import { CameraView, useCameraPermissions } from "expo-camera";
-import { searchProductByBarcode, isValidBarcode, cleanBarcode, DEMO_BARCODES } from "@/lib/barcode-service";
-import { useColors } from "@/hooks/use-colors";
 import * as Haptics from "expo-haptics";
+import { CameraView, useCameraPermissions } from "expo-camera";
+import { useColors } from "@/application/hooks/use-colors";
+import { DiFactory } from "@/application/factory";
+import { NoPermissionModal, NoPermissionGrantedModal } from "@/presentation/barcode/components";
+import { useScanBarcode } from "@/presentation/barcode/hooks";
+
+const barcodeRepository = DiFactory.createBarcodeRepository();
 
 interface BarcodeScannerProps {
   visible: boolean;
@@ -23,7 +27,7 @@ interface BarcodeScannerProps {
 export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScannerProps) {
   const colors = useColors();
   const [permission, requestPermission] = useCameraPermissions();
-  const [loading, setLoading] = useState(false);
+  const { scan, loading } = useScanBarcode(barcodeRepository);
   const [scanned, setScanned] = useState(false);
   const cameraRef = useRef<CameraView>(null);
 
@@ -37,31 +41,17 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
   const handleBarCodeScanned = async ({ data }: { data: string }) => {
     if (scanned || loading) return;
 
-    if (!isValidBarcode(data)) {
-      if (Platform.OS !== "web") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      }
-      Alert.alert("Código inválido", "El código de barras no es válido. Intenta de nuevo.");
+    if (!barcodeRepository.isValidBarcode(data)) {
+      Alert.alert("Código inválido");
       return;
     }
 
     setScanned(true);
-    setLoading(true);
-
-    if (Platform.OS !== "web") {
-      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    }
 
     try {
-      const cleanedBarcode = cleanBarcode(data);
+      const cleanedBarcode = barcodeRepository.cleanBarcode(data);
 
-      // Primero intentar con datos de demo
-      let product: any = DEMO_BARCODES[cleanedBarcode];
-
-      // Si no está en demo, intentar con API
-      if (!product) {
-        product = await searchProductByBarcode(cleanedBarcode);
-      }
+      const product = await scan(cleanedBarcode);
 
       if (!product || !product.found || !product.name) {
         if (Platform.OS !== "web") {
@@ -75,62 +65,33 @@ export function BarcodeScanner({ visible, onClose, onProductFound }: BarcodeScan
         return;
       }
 
-      if (Platform.OS !== "web") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-
-      onProductFound({
-        name: product.name,
-        category: product.category || "otros",
-        brand: product.brand,
-      });
-
+      onProductFound({ ...product, category: product.category ?? "" });
       onClose();
-    } catch (error) {
-      console.error("Error scanning barcode:", error);
-      if (Platform.OS !== "web") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      }
-      Alert.alert("Error", "Ocurrió un error al procesar el código. Intenta de nuevo.");
+    } catch (error: any) {
+      Alert.alert("Error");
       setScanned(false);
-    } finally {
-      setLoading(false);
     }
   };
 
   if (!permission) {
     return (
-      <Modal visible={visible} animationType="slide" transparent presentationStyle="overFullScreen">
-        <View style={[styles.overlay, { backgroundColor: colors.background }]}>
-          <View style={styles.center}>
-            <Text style={[styles.text, { color: colors.foreground }]}>Solicitando permisos de cámara...</Text>
-          </View>
-        </View>
-      </Modal>
+      <NoPermissionModal
+        visible={visible}
+        styles={styles}
+        colors={colors}
+      />
     );
   }
 
   if (!permission.granted) {
     return (
-      <Modal visible={visible} animationType="slide" transparent presentationStyle="overFullScreen">
-        <View style={[styles.overlay, { backgroundColor: colors.background }]}>
-          <View style={styles.center}>
-            <Text style={[styles.title, { color: colors.foreground }]}>Permiso de cámara requerido</Text>
-            <Text style={[styles.subtitle, { color: colors.muted }]}>
-              Necesitamos acceso a tu cámara para escanear códigos de barras.
-            </Text>
-            <Pressable
-              onPress={requestPermission}
-              style={[styles.button, { backgroundColor: colors.primary }]}
-            >
-              <Text style={styles.buttonText}>Otorgar permiso</Text>
-            </Pressable>
-            <Pressable onPress={onClose} style={[styles.button, { backgroundColor: colors.border }]}>
-              <Text style={[styles.buttonText, { color: colors.foreground }]}>Cancelar</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+      <NoPermissionGrantedModal
+        visible={visible}
+        styles={styles}
+        colors={colors}
+        requestPermission={requestPermission}
+        onClose={onClose}
+      />
     );
   }
 

@@ -1,7 +1,7 @@
 import React from "react";
 import { View, Text, Pressable, StyleSheet } from "react-native";
 import { FoodItem, getDaysUntilExpiry, getExpiryStatus, CATEGORY_ICONS, LOCATION_LABELS } from "@/lib/store";
-import { useColors } from "@/hooks/use-colors";
+import { useColors } from "@/application/hooks/use-colors";
 
 interface FoodCardProps {
   food: FoodItem;
@@ -16,14 +16,14 @@ export function FoodCard({ food, onPress, compact = false }: FoodCardProps) {
 
   const badgeColor =
     status === "expired" ? colors.error :
-    status === "warning" ? colors.warning :
-    colors.success;
+      status === "warning" ? colors.warning :
+        colors.success;
 
   const badgeText =
     status === "expired" ? "Vencido" :
-    days === 0 ? "Hoy" :
-    days === 1 ? "Mañana" :
-    `${days}d`;
+      days === 0 ? "Hoy" :
+        days === 1 ? "Mañana" :
+          `${days}d`;
 
   const icon = CATEGORY_ICONS[food.category];
 

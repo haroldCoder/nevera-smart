@@ -10,10 +10,10 @@ import {
   Platform,
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { useShopping } from "@/hooks/use-shopping";
-import { useFoods } from "@/hooks/use-foods";
+import { useShopping } from "@/application/hooks/use-shopping";
+import { useFoods } from "@/application/hooks/use-foods";
 import { getDaysUntilExpiry, getExpiryStatus, CATEGORY_ICONS } from "@/lib/store";
-import { useColors } from "@/hooks/use-colors";
+import { useColors } from "@/application/hooks/use-colors";
 import * as Haptics from "expo-haptics";
 
 export default function ListaScreen() {

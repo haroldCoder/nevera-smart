@@ -9,9 +9,9 @@ import {
   ScrollView,
 } from "react-native";
 import { ScreenContainer } from "@/components/screen-container";
-import { useFoods } from "@/hooks/use-foods";
+import { useFoods } from "@/application/hooks/use-foods";
 import { FoodItem, CATEGORY_ICONS } from "@/lib/store";
-import { useColors } from "@/hooks/use-colors";
+import { useColors } from "@/application/hooks/use-colors";
 
 interface Recipe {
   id: string;

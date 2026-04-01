@@ -10,8 +10,8 @@ import {
   Platform,
 } from "react-native";
 import { FoodItem, FoodCategory, FoodLocation, CATEGORY_LABELS, CATEGORY_ICONS, LOCATION_LABELS } from "@/lib/store";
-import { useColors } from "@/hooks/use-colors";
-import { BarcodeScanner } from "./barcode-scanner";
+import { useColors } from "@/application/hooks/use-colors";
+import { BarcodeScanner } from "../presentation/barcode/screens/barcode-scanner";
 import * as Haptics from "expo-haptics";
 
 interface AddFoodModalProps {

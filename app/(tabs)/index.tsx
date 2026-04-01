@@ -13,9 +13,9 @@ import {
 import { ScreenContainer } from "@/components/screen-container";
 import { FoodCard } from "@/components/food-card";
 import { AddFoodModal } from "@/components/add-food-modal";
-import { useFoods } from "@/hooks/use-foods";
+import { useFoods } from "@/application/hooks/use-foods";
 import { FoodItem, FoodCategory, CATEGORY_LABELS, CATEGORY_ICONS, getDaysUntilExpiry, getExpiryStatus } from "@/lib/store";
-import { useColors } from "@/hooks/use-colors";
+import { useColors } from "@/application/hooks/use-colors";
 import * as Haptics from "expo-haptics";
 
 type FilterCategory = "todos" | FoodCategory;
