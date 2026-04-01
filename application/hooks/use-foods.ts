@@ -8,7 +8,7 @@ import { useRepositories } from "@/application/hooks/use-repositories";
 const INITIALIZED_KEY = "nevera_smart_initialized";
 
 export function useFoods() {
-  const { foodRepository, wasteRepository } = useRepositories();
+  const { foodRepository, wasteRepository, notificationsRepository } = useRepositories();
   const [foods, setFoods] = useState<FoodItem[]>([]);
   const [wasteRecords, setWasteRecords] = useState<WasteRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,13 +39,16 @@ export function useFoods() {
       addedAt: new Date().toISOString(),
     };
     await foodRepository.addFood(newFood);
+    await notificationsRepository.scheduleExpiryNotification(newFood);
     setFoods((prev) => [...prev, newFood]);
-  }, [foodRepository]);
+  }, [foodRepository, notificationsRepository]);
 
   const update = useCallback(async (food: FoodItem) => {
     await foodRepository.updateFood(food);
+    await notificationsRepository.cancelExpiryNotification(food.id);
+    await notificationsRepository.scheduleExpiryNotification(food);
     setFoods((prev) => prev.map((f) => (f.id === food.id ? food : f)));
-  }, [foodRepository]);
+  }, [foodRepository, notificationsRepository]);
 
   const remove = useCallback(async (id: string, markAsWaste = false) => {
     if (markAsWaste) {
@@ -62,8 +65,9 @@ export function useFoods() {
       }
     }
     await foodRepository.deleteFood(id);
+    await notificationsRepository.cancelExpiryNotification(id);
     setFoods((prev) => prev.filter((f) => f.id !== id));
-  }, [foods, foodRepository, wasteRepository]);
+  }, [foods, foodRepository, wasteRepository, notificationsRepository]);
 
   const refresh = useCallback(async () => {
     const [f, w] = await Promise.all([foodRepository.getFoods(), wasteRepository.getWasteRecords()]);
