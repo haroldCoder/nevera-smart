@@ -1,0 +1,1 @@
+export type FoodCategory = "lacteos" | "frutas" | "verduras" | "carnes" | "granos" | "bebidas" | "otros";

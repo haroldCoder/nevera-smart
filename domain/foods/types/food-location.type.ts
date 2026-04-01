@@ -1,0 +1,1 @@
+export type FoodLocation = "nevera" | "congelador" | "despensa";

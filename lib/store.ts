@@ -1,42 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { scheduleExpiryNotification, cancelExpiryNotification } from "./notifications";
 
-export type FoodCategory = "lacteos" | "frutas" | "verduras" | "carnes" | "granos" | "bebidas" | "otros";
-export type FoodLocation = "nevera" | "congelador" | "despensa";
-
-export interface FoodItem {
-  id: string;
-  name: string;
-  category: FoodCategory;
-  location: FoodLocation;
-  expiryDate: string; // ISO date string
-  quantity: number;
-  unit: string;
-  addedAt: string; // ISO date string
-}
-
-export interface ShoppingItem {
-  id: string;
-  name: string;
-  category?: FoodCategory;
-  quantity?: number;
-  unit?: string;
-  completed: boolean;
-  suggested: boolean;
-  addedAt: string;
-}
-
-export interface WasteRecord {
-  id: string;
-  foodName: string;
-  category: FoodCategory;
-  wastedAt: string;
-}
-
-const KEYS = {
-  FOODS: "nevera_smart_foods",
-  SHOPPING: "nevera_smart_shopping",
-  WASTE: "nevera_smart_waste",
-};
 
 // ---- Foods ----
 export async function getFoods(): Promise<FoodItem[]> {
@@ -52,18 +16,27 @@ export async function addFood(food: FoodItem): Promise<void> {
   const foods = await getFoods();
   foods.push(food);
   await saveFoods(foods);
+  // Schedule notification
+  await scheduleExpiryNotification(food);
 }
 
 export async function updateFood(updated: FoodItem): Promise<void> {
   const foods = await getFoods();
   const idx = foods.findIndex((f) => f.id === updated.id);
-  if (idx !== -1) foods[idx] = updated;
-  await saveFoods(foods);
+  if (idx !== -1) {
+    foods[idx] = updated;
+    await saveFoods(foods);
+    // Reschedule notification
+    await cancelExpiryNotification(updated.id);
+    await scheduleExpiryNotification(updated);
+  }
 }
 
 export async function deleteFood(id: string): Promise<void> {
   const foods = await getFoods();
   await saveFoods(foods.filter((f) => f.id !== id));
+  // Cancel notification
+  await cancelExpiryNotification(id);
 }
 
 // ---- Shopping ----

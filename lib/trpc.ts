@@ -20,7 +20,7 @@ export const trpc = createTRPCReact<AppRouter>();
  * Call this once in your app's root layout.
  */
 export function createTRPCClient() {
-  const apiBaseUrl = getApiBaseUrl();
+  const apiBaseUrl = getApiBaseUrl() ?? "";
 
   // Warn if API URL is missing on native — this will cause crashes
   if (!apiBaseUrl && Platform.OS !== "web") {
