@@ -5,8 +5,8 @@ import { ScreenContainer } from "@/components/screen-container";
 import { ThemedView } from "@/components/themed-view";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { SchemeColors, type ColorScheme } from "@/shared/constants/theme";
+import { useThemeContext } from "@/application/hooks/use-theme";
 import { useColors } from "@/application/hooks/use-colors";
-import { useThemeContext } from "@/lib/theme-provider";
 
 type PaletteName = keyof typeof SchemeColors.light;
 
