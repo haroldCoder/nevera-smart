@@ -1,0 +1,1 @@
+export type StorageConfig = { baseUrl: string; apiKey: string };
