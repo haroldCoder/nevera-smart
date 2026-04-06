@@ -1,40 +1,20 @@
-import { FlatList, ScrollView, Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import { FoodCard } from '@/components/food-card'
 import { CATEGORY_LABELS } from '@/domain/foods/constants'
 import { FoodCategory } from '@/domain/foods/types'
+import { ThemeColorPalette } from '@/shared/constants/theme';
+import { FoodItem } from '@/domain/foods/entities';
 
 interface Props {
-    styles: any;
-    colors: any;
-    filteredFoods: any[];
-    handleLongPress: (food: any) => void;
+    colors: ThemeColorPalette;
+    filteredFoods: FoodItem[];
+    handleLongPress: (food: FoodItem) => void;
     filter: string;
 }
 
-export const FoodList = ({ styles, colors, filteredFoods, handleLongPress, filter }: Props) => {
+export const FoodList = ({ colors, filteredFoods, handleLongPress, filter }: Props) => {
     return (
-        /*<FlatList
-            data={filteredFoods}
-            keyExtractor={(item) => item.id}
-            renderItem={({ item }) => (
-                <FoodCard
-                    key={item.id}
-                    food={item}
-                    onPress={() => handleLongPress(item)}
-                />
-            )}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
-                <View style={styles.emptyState}>
-                    <Text style={[styles.emptyIcon, { color: colors.muted }]}>🗑️</Text>
-                    <Text style={[styles.emptyText, { color: colors.muted }]}>
-                        Tu nevera está vacía
-                    </Text>
-                </View>
-            }
-        />*/
         <View style={styles.section}>
             {filteredFoods.length === 0 ? (
                 <View style={[styles.emptyState, { backgroundColor: colors.surface, borderColor: colors.border }]}>
@@ -58,3 +38,30 @@ export const FoodList = ({ styles, colors, filteredFoods, handleLongPress, filte
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    section: {
+        marginBottom: 8,
+    },
+    emptyState: {
+        alignItems: "center",
+        paddingVertical: 40,
+        borderRadius: 16,
+        borderWidth: 1,
+        borderStyle: "dashed",
+    },
+    emptyIcon: {
+        fontSize: 48,
+        marginBottom: 12,
+    },
+    emptyTitle: {
+        fontSize: 17,
+        fontWeight: "600",
+        lineHeight: 22,
+    },
+    emptySubtitle: {
+        fontSize: 14,
+        lineHeight: 20,
+        marginTop: 4,
+    },
+});

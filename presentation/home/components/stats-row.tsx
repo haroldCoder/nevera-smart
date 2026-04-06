@@ -1,15 +1,15 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { ThemeColorPalette } from '@/shared/constants/theme';
 
 interface Props {
     freshCount: number;
     warningCount: number;
     expiredCount: number;
-    colors: any;
-    styles: any;
+    colors: ThemeColorPalette;
 }
 
-export const StatsRow = ({ freshCount, warningCount, expiredCount, colors, styles }: Props) => {
+export const StatsRow = ({ freshCount, warningCount, expiredCount, colors }: Props) => {
     return (
         <View style={styles.statsRow}>
             <View style={[styles.statCard, { backgroundColor: "#2ECC7115", borderColor: "#2ECC7140" }]}>
@@ -27,3 +27,28 @@ export const StatsRow = ({ freshCount, warningCount, expiredCount, colors, style
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    statsRow: {
+        flexDirection: "row",
+        gap: 10,
+        marginBottom: 20,
+    },
+    statCard: {
+        flex: 1,
+        alignItems: "center",
+        paddingVertical: 12,
+        borderRadius: 14,
+        borderWidth: 1,
+    },
+    statNumber: {
+        fontSize: 22,
+        fontWeight: "800",
+        lineHeight: 28,
+    },
+    statLabel: {
+        fontSize: 11,
+        lineHeight: 15,
+        marginTop: 2,
+    },
+});

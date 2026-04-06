@@ -1,13 +1,13 @@
 import React from 'react'
-import { Text, View } from 'react-native'
+import { StyleSheet, Text, View } from 'react-native'
+import { ThemeColorPalette } from '@/shared/constants/theme';
 
 interface Props {
-    styles: any;
-    colors: any;
+    colors: ThemeColorPalette;
     foods: any[];
 }
 
-export const Header = ({ styles, colors, foods }: Props) => {
+export const Header = ({ colors, foods }: Props) => {
     return (
         <View style={styles.header}>
             <View>
@@ -21,3 +21,37 @@ export const Header = ({ styles, colors, foods }: Props) => {
         </View>
     )
 }
+
+const styles = StyleSheet.create({
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        marginBottom: 16,
+    },
+    greeting: {
+        fontSize: 14,
+        lineHeight: 20,
+    },
+    title: {
+        fontSize: 28,
+        fontWeight: "800",
+        lineHeight: 34,
+    },
+    summaryBadge: {
+        alignItems: "center",
+        paddingHorizontal: 14,
+        paddingVertical: 8,
+        borderRadius: 14,
+        borderWidth: 1,
+    },
+    summaryCount: {
+        fontSize: 22,
+        fontWeight: "800",
+        lineHeight: 28,
+    },
+    summaryLabel: {
+        fontSize: 11,
+        lineHeight: 15,
+    },
+});

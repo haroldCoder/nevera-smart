@@ -1,18 +1,18 @@
 import React from 'react'
-import { ScrollView, Text, Pressable } from 'react-native'
+import { ScrollView, StyleSheet, Text, Pressable } from 'react-native'
 import { CATEGORY_ICONS, CATEGORY_LABELS } from '@/domain/foods/constants'
 import { FoodCategory } from '@/domain/foods/types'
 import { FilterCategory } from '@/presentation/home/types';
+import { ThemeColorPalette } from '@/shared/constants/theme';
 
 interface Props {
-    styles: any;
-    colors: any;
+    colors: ThemeColorPalette;
     categories: FilterCategory[];
     filter: FilterCategory;
     setFilter: (filter: FilterCategory) => void;
 }
 
-export const CategoryFilters = ({ styles, colors, categories, filter, setFilter }: Props) => {
+export const CategoryFilters = ({ colors, categories, filter, setFilter }: Props) => {
     return (
         <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterRow}>
             {categories.map((cat) => (
@@ -32,7 +32,7 @@ export const CategoryFilters = ({ styles, colors, categories, filter, setFilter 
                     )}
                     <Text
                         style={[
-                            styles.filterLabel,
+                            styles.filterText,
                             { color: filter === cat ? "#fff" : colors.muted },
                         ]}
                     >
@@ -43,3 +43,27 @@ export const CategoryFilters = ({ styles, colors, categories, filter, setFilter 
         </ScrollView>
     )
 }
+
+const styles = StyleSheet.create({
+    filterRow: {
+        marginBottom: 16,
+    },
+    filterChip: {
+        flexDirection: "row",
+        alignItems: "center",
+        paddingHorizontal: 14,
+        paddingVertical: 7,
+        borderRadius: 20,
+        borderWidth: 1,
+        marginRight: 8,
+    },
+    filterIcon: {
+        fontSize: 14,
+        marginRight: 4,
+    },
+    filterText: {
+        fontSize: 13,
+        fontWeight: "500",
+        lineHeight: 18,
+    },
+});

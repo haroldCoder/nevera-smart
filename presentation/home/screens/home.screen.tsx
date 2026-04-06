@@ -35,8 +35,12 @@ export default function HomeScreen() {
   const warningCount = foods.filter((f) => getExpiryStatus(getDaysUntilExpiry(f.expiryDate)) === "warning").length;
   const expiredCount = foods.filter((f) => getExpiryStatus(getDaysUntilExpiry(f.expiryDate)) === "expired").length;
 
-  if (loading) return <Loading styles={styles} colors={colors} />
+  const { handleLongPress } = useFoodActions({
+    onEdit: (food) => { setEditFood(food); setModalVisible(true); },
+    onDelete: (id, waste) => remove(id, waste),
+  });
 
+  if (loading) return <Loading colors={colors} />
 
   return (
     <ScreenContainer>
@@ -44,33 +48,29 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
-        <Header styles={styles} colors={colors} foods={foods} />
+        <Header colors={colors} foods={foods} />
         <StatsRow
-          styles={styles}
           colors={colors}
           freshCount={freshCount}
           warningCount={warningCount}
           expiredCount={expiredCount}
         />
         <ExpiringSoon
-          styles={styles}
           colors={colors}
           expiringSoon={expiringSoon}
-          handleLongPress={useFoodActions}
+          handleLongPress={handleLongPress}
         />
         <CategoryFilters
-          styles={styles}
           colors={colors}
           filter={filter}
           setFilter={setFilter}
           categories={categories}
         />
         <FoodList
-          styles={styles}
           colors={colors}
           filteredFoods={filteredFoods}
           filter={filter}
-          handleLongPress={useFoodActions}
+          handleLongPress={handleLongPress}
         />
       </ScrollView>
       <Pressable
@@ -105,118 +105,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingTop: 16,
     paddingBottom: 100,
-  },
-  center: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  header: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "flex-start",
-    marginBottom: 16,
-  },
-  greeting: {
-    fontSize: 14,
-    lineHeight: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "800",
-    lineHeight: 34,
-  },
-  summaryBadge: {
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  summaryCount: {
-    fontSize: 22,
-    fontWeight: "800",
-    lineHeight: 28,
-  },
-  summaryLabel: {
-    fontSize: 11,
-    lineHeight: 15,
-  },
-  statsRow: {
-    flexDirection: "row",
-    gap: 10,
-    marginBottom: 20,
-  },
-  statCard: {
-    flex: 1,
-    alignItems: "center",
-    paddingVertical: 12,
-    borderRadius: 14,
-    borderWidth: 1,
-  },
-  statNumber: {
-    fontSize: 22,
-    fontWeight: "800",
-    lineHeight: 28,
-  },
-  statLabel: {
-    fontSize: 11,
-    lineHeight: 15,
-    marginTop: 2,
-  },
-  section: {
-    marginBottom: 8,
-  },
-  sectionTitle: {
-    fontSize: 17,
-    fontWeight: "700",
-    marginBottom: 10,
-    lineHeight: 22,
-  },
-  horizontalList: {
-    marginBottom: 16,
-  },
-  filterRow: {
-    marginBottom: 16,
-  },
-  filterChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginRight: 8,
-  },
-  filterIcon: {
-    fontSize: 14,
-    marginRight: 4,
-  },
-  filterText: {
-    fontSize: 13,
-    fontWeight: "500",
-    lineHeight: 18,
-  },
-  emptyState: {
-    alignItems: "center",
-    paddingVertical: 40,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderStyle: "dashed",
-  },
-  emptyIcon: {
-    fontSize: 48,
-    marginBottom: 12,
-  },
-  emptyTitle: {
-    fontSize: 17,
-    fontWeight: "600",
-    lineHeight: 22,
-  },
-  emptySubtitle: {
-    fontSize: 14,
-    lineHeight: 20,
-    marginTop: 4,
   },
   fab: {
     position: "absolute",

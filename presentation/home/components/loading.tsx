@@ -1,13 +1,13 @@
 import { ScreenContainer } from '@/components/screen-container'
 import React from 'react'
-import { ActivityIndicator, View } from 'react-native'
+import { ActivityIndicator, StyleSheet, View } from 'react-native'
+import { ThemeColorPalette } from '@/shared/constants/theme';
 
 interface Props {
-    styles: any;
-    colors: any;
+    colors: ThemeColorPalette;
 }
 
-export const Loading = ({ styles, colors }: Props) => {
+export const Loading = ({ colors }: Props) => {
     return (
         <ScreenContainer>
             <View style={styles.center}>
@@ -16,3 +16,11 @@ export const Loading = ({ styles, colors }: Props) => {
         </ScreenContainer>
     )
 }
+
+const styles = StyleSheet.create({
+    center: {
+        flex: 1,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+});
